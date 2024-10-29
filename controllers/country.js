@@ -18,12 +18,8 @@ async function getCountry(req, res) {
 }
 
 async function addCountry(req, res) {
-  let { displayOrder, countryCode, countryName, remarks, currency, active } =
+  let { countryCode, countryName, currency, active } =
     req.body;
-
-  if (!displayOrder) {
-    return res.json(error("Display order not found"));
-  }
 
   if (!countryCode) {
     return res.json(error("Country code not found"));
@@ -37,20 +33,15 @@ async function addCountry(req, res) {
     return res.json(error("Currency not found"));
   }
 
-
   const client = await mongoClient.connect(url);
   const db = client.db("nuralLiteDb");
   const counteries = db.collection("counteries");
   const cid = Math.floor(Math.random() * 10000000);
 
-  console.log(cid);
-
   try {
     const result = await counteries.insertOne({
-      displayOrder,
       countryCode,
       countryName,
-      remarks,
       currency,
       active,
       id: cid,
@@ -62,15 +53,11 @@ async function addCountry(req, res) {
 }
 
 async function updateCountry(req, res) {
-  const { displayOrder, countryCode, countryName, remarks, currency, id } =
+  const { countryCode, countryName, currency, id } =
     req.body;
 
   if (!id) {
     return res.json(error("Country Id not found"));
-  }
-
-  if (!displayOrder) {
-    return res.json(error("Display order not found"));
   }
 
   if (!countryCode) {
@@ -97,7 +84,7 @@ async function updateCountry(req, res) {
   try {
     const result = await counteries.findOneAndUpdate(
       { id: Number(id) },
-      { $set: { displayOrder, countryCode, countryName, remarks, currency } }
+      { $set: { countryCode, countryName, currency } }
     );
 
     if (result) {
@@ -125,9 +112,7 @@ async function deleteCountry(req, res) {
   const counteries = db.collection("counteries");
 
   try {
-    const result = await counteries.findOneAndDelete(
-      { id: Number(id) }
-    );
+    const result = await counteries.findOneAndDelete({ id: Number(id) });
 
     if (result) {
       return res
